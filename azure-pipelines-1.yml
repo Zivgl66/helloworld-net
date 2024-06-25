@@ -45,24 +45,24 @@ jobs:
       zipAfterPublish: true
     displayName: 'Publish Artifacts'
 
-# Prepare Analysis Configuration task
-- task: SonarQubePrepare@6
-  inputs:
-    SonarQube: 'http://54.237.206.31:9000/'
-    scannerMode: 'MSBuild'
-    projectKey: 'helloworld'
+  # Prepare Analysis Configuration task
+  - task: SonarQubePrepare@6
+    inputs:
+      SonarQube: 'http://54.237.206.31:9000/'
+      scannerMode: 'MSBuild'
+      projectKey: 'helloworld'
 
-# Dotnet build task
-- task: DotNetCoreCLI@2
-  displayName: 'dotnet build'
+  # Dotnet build task
+  - task: DotNetCoreCLI@2
+    displayName: 'dotnet build'
 
-# Run Code Analysis task
-- task: SonarQubeAnalyze@6
+  # Run Code Analysis task
+  - task: SonarQubeAnalyze@6
 
-# Publish Quality Gate Result task
-- task: SonarQubePublish@6
-  inputs:
-    pollingTimeoutSec: '300'
+  # Publish Quality Gate Result task
+  - task: SonarQubePublish@6
+    inputs:
+      pollingTimeoutSec: '300'
 
   - script: dotnet pack --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/nupkg
     displayName: 'Pack Solution'
