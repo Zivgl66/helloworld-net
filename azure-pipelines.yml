@@ -29,7 +29,7 @@ steps:
 
 - script: |
     echo "Starting NuGet push..."
-    dotnet nuget push --source "helloworldfeed" --api-key $(NUGET_API_KEY) "$(Build.ArtifactStagingDirectory)/*.nupkg" 
+    dotnet nuget push --source "helloworldfeed" --api-key "hello" "$(Build.ArtifactStagingDirectory)/*.nupkg" 
   displayName: 'Publish to Azure Artifacts'
   env:
     NUGET_API_KEY: $(NUGET_API_KEY) 
