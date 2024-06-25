@@ -33,7 +33,7 @@ steps:
 
 - script: |
     echo "Starting NuGet push..."
-    dotnet nuget push --source "https://pkgs.dev.azure.com/zivgl66/_packaging/zivgl66/nuget/v3/index.json" --api-key "hello" "$(Build.ArtifactStagingDirectory)/nupkg/*.nupkg" 
+    dotnet nuget push --source "https://pkgs.dev.azure.com/zivgl66/_packaging/helloworld/nuget/v3/index.json" --api-key az "$(Build.ArtifactStagingDirectory)/nupkg/*.nupkg" 
   displayName: 'Publish to Azure Artifacts'
   env:
     NUGET_API_KEY: $(NUGET_API_KEY) 
