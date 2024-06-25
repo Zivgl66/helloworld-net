@@ -1,9 +1,6 @@
 trigger:
-  branches:
-    include:
-      - '*'  # Include all branches by default
-    exclude:
-      - main  # Exclude the main branch (assuming you only want to run this on other branches)
+- dev
+
 
 pool:
   name: "ziv's machine"
