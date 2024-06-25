@@ -99,7 +99,7 @@ jobs:
         $status = "$(Build.Reason) - $(Build.SourceBranchName) build $(Build.BuildId) has completed."
         $emailBody = "Status: $status"
         $subject = "Azure DevOps Pipeline Status"
-        $recipients = "your-email@example.com"
+        $recipients = "zivgl66@gmail.com"
         Send-MailMessage -SmtpServer "smtp.example.com" -To $recipients -From "azure-pipeline@example.com" -Subject $subject -Body $emailBody -BodyAsHtml -Credential (Get-Credential)
     displayName: 'Send Email Notification'
 
