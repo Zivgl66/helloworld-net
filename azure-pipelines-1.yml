@@ -24,15 +24,11 @@ jobs:
       version: '8.0.x'
       installationPath: $(Agent.ToolsDirectory)/dotnet
 
-  - script: dotnet restore $(solution)
-    displayName: 'Restore Dependencies'
-
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      projects: '$(solution)'
-      arguments: '--configuration Release'
-    displayName: 'Build Solution'
+  - script: |
+      # Increment version number dynamically
+      dotnet build /p:Version=$(Build.BuildId) --configuration Release
+      dotnet pack /p:PackageVersion=$(Build.BuildId) --configuration Release --output $(Build.ArtifactStagingDirectory)/nupkg
+    displayName: 'Build and Pack Solution'
 
   - task: DotNetCoreCLI@2
     inputs:
