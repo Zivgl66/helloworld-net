@@ -5,18 +5,18 @@ pool:
   name: "ziv's machine"
   vmImage: 'ubuntu-latest'
 
-# variables:
-#   solution: '**/*.sln'
-#   buildPlatform: 'Any CPU'
-#   buildConfiguration: 'Release'
-#   nugetFeed: 'helloworldfeed'  # Replace with your Azure Artifacts feed name
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  nugetFeed: 'helloworldfeed'
 
 # jobs:
 # - job: BuildAndPublish
 #   displayName: 'Build and Publish'
 #   condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'refs/heads/dev'))
 
-  steps:
+steps:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
