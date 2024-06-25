@@ -2,8 +2,10 @@ trigger:
 - main
 
 pool:
-  name: "ziv's machine"
-  vmImage: 'windows-latest'
+  name: ziv's machine
+  demands:
+    - java
+    - Agent.Version -gtVersion 3.218.0
 
 steps:
 - task: UseDotNet@2
