@@ -11,17 +11,23 @@ steps:
     packageType: 'sdk'
     version: '8.0.x'  
 
-- script: |
-    dotnet build --configuration Release
-  displayName: 'Build Solution'
+# - script: |
+#     dotnet build --configuration Release
+#   displayName: 'Build Solution'
+
+# - script: |
+#     dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)
+#   displayName: 'Publish Artifacts'
+
+# - script: |
+#     dotnet pack --configuration Release --output $(Build.ArtifactStagingDirectory)/nupkg
+#   displayName: 'Pack Solution'
 
 - script: |
-    dotnet publish --configuration Release --output $(Build.ArtifactStagingDirectory)
-  displayName: 'Publish Artifacts'
-
-- script: |
-    dotnet pack --configuration Release --output $(Build.ArtifactStagingDirectory)/nupkg
-  displayName: 'Pack Solution'
+    # Increment version number dynamically
+    dotnet build /p:Version=$(Build.BuildId) --configuration Release
+    dotnet pack /p:PackageVersion=$(Build.BuildId) --configuration Release --output $(Build.ArtifactStagingDirectory)/nupkg
+  displayName: 'Build and Pack Solution'
 
 - task: PublishBuildArtifacts@1
   inputs:
