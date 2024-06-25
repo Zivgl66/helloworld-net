@@ -1,0 +1,123 @@
+trigger:
+  branches:
+    include:
+      - '*'  # Include all branches by default
+    exclude:
+      - main  # Exclude the main branch (assuming you only want to run this on other branches)
+
+pool:
+  name: "ziv's machine"
+  vmImage: 'ubuntu-latest'
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+  nugetFeed: 'helloworldfeed'  # Replace with your Azure Artifacts feed name
+
+jobs:
+- job: BuildAndPublish
+  displayName: 'Build and Publish'
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'refs/heads/dev'))
+
+  steps:
+  - task: UseDotNet@2
+    inputs:
+      packageType: 'sdk'
+      version: '8.0.x'
+      installationPath: $(Agent.ToolsDirectory)/dotnet
+
+  - script: dotnet restore
+    displayName: 'Restore Dependencies'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: '$(solution)'
+      arguments: '--configuration $(buildConfiguration)'
+    displayName: 'Build Solution'
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'publish'
+      publishWebProjects: false
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/publish'
+      zipAfterPublish: true
+    displayName: 'Publish Artifacts'
+
+# Prepare Analysis Configuration task
+- task: SonarQubePrepare@6
+  inputs:
+    SonarQube: 'http://54.237.206.31:9000/'
+    scannerMode: 'MSBuild'
+    projectKey: 'helloworld'
+
+# Dotnet build task
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+
+# Run Code Analysis task
+- task: SonarQubeAnalyze@6
+
+# Publish Quality Gate Result task
+- task: SonarQubePublish@6
+  inputs:
+    pollingTimeoutSec: '300'
+
+  - script: dotnet pack --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/nupkg
+    displayName: 'Pack Solution'
+
+  - task: NuGetCommand@2
+    inputs:
+      command: 'push'
+      packagesToPush: '$(Build.ArtifactStagingDirectory)/nupkg/*.nupkg'
+      nuGetFeedType: 'internal'
+      publishVstsFeed: '$(nugetFeed)'
+      allowPackageConflicts: true
+    displayName: 'Push NuGet Package to Azure Artifacts'
+
+  - script: |
+      version=$(dotnet --version)
+      echo "Version: $version"
+    displayName: 'Print Version'
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/publish'
+      ArtifactName: 'drop'
+
+  - task: PublishPipelineArtifact@1
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)/nupkg/*.nupkg'
+      artifact: 'nuget-packages'
+      publishLocation: 'pipeline'
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        $status = "$(Build.Reason) - $(Build.SourceBranchName) build $(Build.BuildId) has completed."
+        $emailBody = "Status: $status"
+        $subject = "Azure DevOps Pipeline Status"
+        $recipients = "your-email@example.com"
+        Send-MailMessage -SmtpServer "smtp.example.com" -To $recipients -From "azure-pipeline@example.com" -Subject $subject -Body $emailBody -BodyAsHtml -Credential (Get-Credential)
+    displayName: 'Send Email Notification'
+
+  - task: PowerShell@2
+    inputs:
+      targetType: 'inline'
+      script: |
+        # Extract branch name and version
+        $branchName = "$(Build.SourceBranchName)"
+        $version = "$(Build.BuildNumber)"
+
+        # Tag the artifact with branch name and version
+        Write-Host "##vso[task.setvariable variable=TagName]${branchName}_${version}"
+    displayName: 'Tag Artifact'
+
+  - task: PublishPipelineArtifact@1
+    condition: succeeded()
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)/nupkg/*.nupkg'
+      artifact: '$(TagName)'
+      publishLocation: 'pipeline'
