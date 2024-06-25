@@ -28,5 +28,5 @@ steps:
 - task: NuGetAuthenticate@0
 
 - script: |
-    dotnet nuget push $(Build.ArtifactStagingDirectory)/*.nupkg -k $(NUGET_API_KEY) -s https://pkgs.dev.azure.com/zivgl66/hello%20world/_packaging/helloworldfeed/nuget/v3/index.json
+    dotnet nuget push --source "helloworldfeed" --api-key az -s https://pkgs.dev.azure.com/zivgl66/e01e2b10-f19f-4ceb-b944-8d8db1edeee7/_packaging/helloworldfeed/nuget/v3/index.json
   displayName: 'Publish to Azure Artifacts'
