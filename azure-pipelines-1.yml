@@ -48,7 +48,7 @@ jobs:
   # Prepare Analysis Configuration task
   - task: SonarQubePrepare@6
     inputs:
-      SonarQube: 'http://54.237.206.31:9000/'
+      SonarQube: 'sonarqube-connection'
       scannerMode: 'MSBuild'
       projectKey: 'helloworld'
 
